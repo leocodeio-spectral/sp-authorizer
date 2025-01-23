@@ -1,10 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { ValidationService } from '../../application/services/validation.service';
 import { IsPhoneValidDto } from '../../application/dtos/is-phone-valid.dto';
 import { IsEmailValidDto } from '../../application/dtos/is-email-valid.dto';
-import { IsAccessTokenValidDto } from '../../application/dtos/is-access-token-valid.dto';
-import { IsRefreshTokenValidDto } from '../../application/dtos/is-refresh-token-valid.dto';
 import { ApiSecurity } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @Controller('validate')
 // @ApiSecurity('x-api-key')
@@ -27,18 +26,18 @@ export class ValidationController {
   }
 
   // IsAcessTokenValid
-  @Post('access-token')
+  @Get('access-token')
   async isAccessTokenValid(
-    @Body() isAccessTokenValidDto: IsAccessTokenValidDto,
+    @Req() request: Request,
   ): Promise<boolean> {
-    return this.validationService.isAccessTokenValid(isAccessTokenValidDto);
+    return this.validationService.isAccessTokenValid(request);
   }
 
   // IsRefreshTokenValid
-  @Post('refresh-token')
+  @Get('refresh-token')
   async isRefreshTokenValid(
-    @Body() isRefreshTokenValidDto: IsRefreshTokenValidDto,
+    @Req() request: Request,
   ): Promise<boolean> {
-    return this.validationService.isRefreshTokenValid(isRefreshTokenValidDto);
+    return this.validationService.isRefreshTokenValid(request);
   }
 }

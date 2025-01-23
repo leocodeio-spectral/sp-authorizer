@@ -7,9 +7,9 @@ const phoneUtil = PhoneNumberUtil.getInstance();
 import * as EmailValidator from 'email-validator';
 import { IsEmailValidDto } from '../dtos/is-email-valid.dto';
 
-import { IsAccessTokenValidDto } from '../dtos/is-access-token-valid.dto';
 import * as jwt from 'jsonwebtoken';
-import { IsRefreshTokenValidDto } from '../dtos/is-refresh-token-valid.dto';
+import { Request } from 'express';
+import { getCookieAccessToken } from '../functions/get-cookie-access-token';
 
 @Injectable()
 export class ValidationService {
@@ -38,11 +38,10 @@ export class ValidationService {
     return EmailValidator.validate(isEmailValidDto.email);
   }
 
-  async isAccessTokenValid(
-    isAccessTokenValidDto: IsAccessTokenValidDto,
-  ): Promise<boolean> {
+  async isAccessTokenValid(request: Request): Promise<boolean> {
+    const accessToken = getCookieAccessToken(request);
     jwt.verify(
-      isAccessTokenValidDto.accessToken,
+      accessToken,
       process.env.ACCESS_TOKEN_SECRET,
       function (err, decoded) {
         if (err) {
@@ -60,11 +59,10 @@ export class ValidationService {
     return true;
   }
 
-  async isRefreshTokenValid(
-    isRefreshTokenValidDto: IsRefreshTokenValidDto,
-  ): Promise<boolean> {
+  async isRefreshTokenValid(request: Request): Promise<boolean> {
+    const refreshToken = request.cookies['refreshToken'];
     jwt.verify(
-      isRefreshTokenValidDto.refreshToken,
+      refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       function (err, decoded) {
         if (err) {
