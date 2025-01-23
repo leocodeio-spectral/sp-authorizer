@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { Response } from 'express';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { AuthorizeRequestDto } from '../dtos/authorize-request.dto';
 import { ConfigService } from '@nestjs/config';
 import { parseTimeToMs } from '../functions/parse-time-to-ms';
+import { getCookieRefreshToken } from 'src/modules/validation/application/functions/get-cookie-refresh-token';
 
 @Injectable()
 export class AuthorizationService {
@@ -67,5 +68,25 @@ export class AuthorizationService {
   ): Promise<void> {
     this.provideAccessToken(authorizeRequestDto, response);
     this.provideRefreshToken(authorizeRequestDto, response);
+  }
+
+  async refreshUser(request: Request, response: Response): Promise<void> {
+    try {
+      const refreshToken = getCookieRefreshToken(request);
+      const decoded = jwt.verify(
+        refreshToken,
+        this.configService.get('REFRESH_TOKEN_SECRET'),
+      ) as AuthorizeRequestDto;
+
+      const authorizeRequestDto: AuthorizeRequestDto = {
+        userId: decoded.userId,
+      };
+
+      // this gets called if the refresh token is valid
+      this.provideAccessToken(authorizeRequestDto, response);
+    } catch (error) {
+      // this gets called if the refresh token is expired or invalid
+      throw new UnauthorizedException(error.message);
+    }
   }
 }

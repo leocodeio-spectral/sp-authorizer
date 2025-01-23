@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { AuthorizationService } from '../../application/services/authorization.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthorizeRequestDto } from '../../application/dtos/authorize-request.dto';
 
 @Controller('authorize')
@@ -51,5 +51,13 @@ export class AuthorizationController {
     response.clearCookie('refreshToken');
     response.status(200).json({ data: 'Token revoked' });
   }
+
+  @Get('refresh-user')
+  async refreshUser(
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    await this.authorizationService.refreshUser(request, response);
+    response.status(200).json({ data: 'User refreshed' });
+  }
 }
-  
