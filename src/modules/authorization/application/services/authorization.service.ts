@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { AuthorizeRequestDto } from '../dtos/authorize-request.dto';
+import { ConfigService } from '@nestjs/config';
+import { parseTimeToMs } from '../functions/parse-time-to-ms';
 
 @Injectable()
 export class AuthorizationService {
-  constructor() {}
+  constructor(private readonly configService: ConfigService) {}
 
   // Provide Access Token to user
   async provideAccessToken(
@@ -14,16 +16,22 @@ export class AuthorizationService {
   ): Promise<void> {
     const accessToken = jwt.sign(
       { userId: provideAccessTokenDto.userId },
-      process.env.ACCESS_TOKEN_SECRET,
+      this.configService.get('ACCESS_TOKEN_SECRET'),
       {
-        expiresIn: '1h',
+        expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
       },
     );
+
+    // Convert time string to milliseconds
+    const maxAge = parseTimeToMs(
+      this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
+    );
+
     response.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
-      maxAge: 3600000,
+      maxAge,
     });
   }
 
@@ -34,16 +42,22 @@ export class AuthorizationService {
   ): Promise<void> {
     const refreshToken = jwt.sign(
       { userId: provideRefreshTokenDto.userId },
-      process.env.REFRESH_TOKEN_SECRET,
+      this.configService.get('REFRESH_TOKEN_SECRET'),
       {
-        expiresIn: '1d',
+        expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
       },
     );
+
+    // Convert time string to milliseconds
+    const maxAge = parseTimeToMs(
+      this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
+    );
+
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
-      maxAge: 86400000,
+      maxAge,
     });
   }
 
@@ -51,10 +65,7 @@ export class AuthorizationService {
     authorizeRequestDto: AuthorizeRequestDto,
     response: Response,
   ): Promise<void> {
-    const accessToken = this.provideAccessToken(authorizeRequestDto, response);
-    const refreshToken = this.provideRefreshToken(
-      authorizeRequestDto,
-      response,
-    );
+    this.provideAccessToken(authorizeRequestDto, response);
+    this.provideRefreshToken(authorizeRequestDto, response);
   }
 }
