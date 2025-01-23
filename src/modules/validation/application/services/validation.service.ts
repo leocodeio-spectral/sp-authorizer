@@ -15,10 +15,6 @@ import { getCookieAccessToken } from '../functions/get-cookie-access-token';
 export class ValidationService {
   constructor() {}
 
-  getHello(): string {
-    return 'Hello World!';
-  }
-
   async isPhoneValid(isPhoneValidDto: IsPhoneValidDto): Promise<boolean> {
     try {
       const phoneNumber = phoneUtil.parse(
