@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { IsPhoneValidDto } from '../dtos/is-phone-valid.dto';
@@ -20,11 +20,18 @@ export class ValidationService {
   }
 
   async isPhoneValid(isPhoneValidDto: IsPhoneValidDto): Promise<boolean> {
-    const phoneNumber = phoneUtil.parse(
-      isPhoneValidDto.phoneNumber,
-      isPhoneValidDto.countryCode,
-    );
-    return phoneUtil.isValidNumber(phoneNumber);
+    try {
+      const phoneNumber = phoneUtil.parse(
+        isPhoneValidDto.phoneNumber,
+        isPhoneValidDto.countryCode,
+      );
+      return phoneUtil.isValidNumber(phoneNumber);
+    } catch (error) {
+      // console.log('+++++++++++++++++++++++');
+      // console.log(error.message);
+      // console.log('+++++++++++++++++++++++');
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async isEmailValid(isEmailValidDto: IsEmailValidDto): Promise<boolean> {

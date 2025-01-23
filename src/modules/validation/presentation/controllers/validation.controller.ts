@@ -1,19 +1,15 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ValidationService } from '../../application/services/validation.service';
 import { IsPhoneValidDto } from '../../application/dtos/is-phone-valid.dto';
 import { IsEmailValidDto } from '../../application/dtos/is-email-valid.dto';
 import { IsAccessTokenValidDto } from '../../application/dtos/is-access-token-valid.dto';
 import { IsRefreshTokenValidDto } from '../../application/dtos/is-refresh-token-valid.dto';
+import { ApiSecurity } from '@nestjs/swagger';
 
-@Controller('validation')
+@Controller('validate')
+// @ApiSecurity('x-api-key')
 export class ValidationController {
   constructor(private readonly validationService: ValidationService) {}
-
-  @Get()
-  getHello(): string {
-    return this.validationService.getHello();
-  }
-
   // IsPhone valid
   @Post('phone')
   async isPhoneValid(
