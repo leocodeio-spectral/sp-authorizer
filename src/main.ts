@@ -9,6 +9,16 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // const corsOptions = {
+  //   origin: configService.get('CORS_ORIGIN'),
+  //   credentials: true,
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  //   allowedHeaders: ['Content-Type', 'Authorization'],
+  //   exposedHeaders: ['Content-Range', 'X-Total-Count'],
+  // };
+  // app.enableCors(corsOptions);
+
   const swaggerProtection = {
     route: configService.get('SWAGGER_ROUTE'),
     password: configService.get('SWAGGER_PASSWORD'),
