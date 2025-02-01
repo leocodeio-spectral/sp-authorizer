@@ -8,8 +8,9 @@ import { HealthModule } from '@leocodeio-njs/njs-health';
 import { ApiKeyGuard } from '@leocodeio-njs/njs-auth';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from '@leocodeio-njs/njs-logging';
-import { AppConfigModule } from '@leocodeio-njs/njs-config';
+import { AppConfigModule, AppConfigService } from '@leocodeio-njs/njs-config';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -21,6 +22,16 @@ import { ConfigModule } from '@nestjs/config';
     AppConfigModule,
     LoggingModule,
     HealthModule,
+    TypeOrmModule.forRootAsync({
+      imports: [AppConfigModule],
+      inject: [AppConfigService],
+      useFactory: (configService: AppConfigService) => ({
+        ...configService.databaseConfig,
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+        autoLoadEntities: true,
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [

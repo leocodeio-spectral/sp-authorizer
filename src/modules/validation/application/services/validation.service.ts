@@ -16,6 +16,8 @@ import { Request } from 'express';
 import { getCookieAccessToken } from '../functions/get-cookie-access-token';
 import { getCookieRefreshToken } from '../functions/get-cookie-refresh-token';
 import { ConfigService } from '@nestjs/config';
+import { ExistsPhoneDto } from '../dtos/exists-phone.dto';
+import { ExistsEmailDto } from '../dtos/exists-email.dto';
 
 @Injectable()
 export class ValidationService {
